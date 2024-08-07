@@ -401,7 +401,7 @@ async def button(bot: Client, cmd: CallbackQuery):
 
     elif "addToBatchTrue" in cb_data:
         if MediaList.get(f"{str(cmd.from_user.id)}", None) is None:
-            MediList[f"{str(cmd.from_user.id)}"] = []
+            MediaList[f"{str(cmd.from_user.id)}"] = []
         file_id = cmd.message.reply_to_message.id
         MediaList[f"{str(cmd.from_user.id)}"].append(file_id)
         await cmd.message.edit("File Saved in Batch!\n\n"
