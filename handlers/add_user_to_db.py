@@ -18,4 +18,3 @@ async def add_user_to_database(bot: Client, cmd: Message):
                     print(f"Failed to send message to log channel: {e}")
     except Exception as e:
         print(f"Error in add_user_to_database: {e}")
-        
