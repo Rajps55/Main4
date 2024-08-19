@@ -6,6 +6,7 @@ from datetime import datetime
 from binascii import Error
 import asyncio
 import traceback
+import time
 
 from configs import Config
 from handlers.database import db
@@ -34,6 +35,17 @@ async def is_premium_member(user_id):
     except Exception as e:
         print(f"Error checking premium status: {e}")
         return False
+
+async def handle_flood_wait(func, *args, **kwargs):
+    while True:
+        try:
+            return await func(*args, **kwargs)
+        except FloodWait as fw:
+            print(f"FloodWait: Waiting for {fw.value} seconds")
+            await asyncio.sleep(fw.value)
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            break
 
 @Bot.on_message(filters.private)
 async def handle_user(bot: Client, cmd: Message):
@@ -75,7 +87,7 @@ async def start(bot: Client, cmd: Message):
             except (Error, UnicodeDecodeError):
                 file_id = int(usr_cmd.split("_")[-1])
                 
-            GetMessage = await bot.get_messages(chat_id=Config.DB_CHANNEL, message_ids=file_id)
+            GetMessage = await handle_flood_wait(bot.get_messages, chat_id=Config.DB_CHANNEL, message_ids=file_id)
             message_ids = []
             if GetMessage.text:
                 message_ids = GetMessage.text.split(" ")
@@ -130,12 +142,12 @@ async def handle_media(bot: Client, message: Message):
             return
 
         try:
-            forwarded_msg = await message.forward(Config.DB_CHANNEL)
+            forwarded_msg = await handle_flood_wait(message.forward, Config.DB_CHANNEL)
             file_er_id = str(forwarded_msg.id)
             share_link = f"https://t.me/{Config.BOT_USERNAME}?start=VJBotz_{str_to_b64(file_er_id)}"
-            CH_edit = await bot.edit_message_reply_markup(message.chat.id, message.id,
-                                                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(
-                                                              "Get Sharable Link", url=share_link)]]))
+            CH_edit = await handle_flood_wait(bot.edit_message_reply_markup, message.chat.id, message.id,
+                                              reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(
+                                                  "Get Sharable Link", url=share_link)]]))
             if message.chat.username:
                 await forwarded_msg.reply_text(
                     f"#CHANNEL_BUTTON:\n\n[{message.chat.title}](https://t.me/{message.chat.username}/{CH_edit.id}) Channel's Broadcasted File's Button Added!")
