@@ -7,11 +7,20 @@ async def handle_user_status(bot, cmd):
     try:
         if not await db.is_user_exist(chat_id):
             await db.add_user(chat_id)
-            await bot.send_message(
-                Config.LOG_CHANNEL,
-                f"#NEW_USER: \n\nNew User [{cmd.from_user.first_name}](tg://user?id={cmd.from_user.id}) started @{Config.BOT_USERNAME} !!"
-            )
+            if Config.LOG_CHANNEL:
+                await bot.send_message(
+                    Config.LOG_CHANNEL,
+                    f"#NEW_USER: \n\nNew User [{cmd.from_user.first_name}](tg://user?id={cmd.from_user.id}) started @{Config.BOT_USERNAME} !!"
+                )
+    except Exception as e:
+        print(f"Error in handle_user_status: {e}")
+        await bot.send_message(
+            Config.LOG_CHANNEL,
+            f"#ERROR_TRACEBACK:\nError in handle_user_status: {e}"
+        )
+        return
 
+    try:
         ban_status = await db.get_ban_status(chat_id)
         if ban_status["is_banned"]:
             if (
@@ -21,6 +30,12 @@ async def handle_user_status(bot, cmd):
             else:
                 await cmd.reply_text("You are banned! Contact @VJ_Botz 😝", quote=True)
                 return
-        await cmd.continue_propagation()
     except Exception as e:
-        print(f"Error in handle_user_status: {e}")
+        print(f"Error checking ban status: {e}")
+        await bot.send_message(
+            Config.LOG_CHANNEL,
+            f"#ERROR_TRACEBACK:\nError checking ban status: {e}"
+        )
+        return
+
+    await cmd.continue_propagation()
