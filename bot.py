@@ -4,6 +4,7 @@ from pyrogram.errors import UserNotParticipant, FloodWait
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 from datetime import datetime
 from binascii import Error
+import asyncio
 import traceback
 
 from configs import Config
@@ -125,8 +126,6 @@ async def handle_media(bot: Client, message: Message):
         elif int(message.chat.id) in Config.BANNED_CHAT_IDS:
             await bot.leave_chat(message.chat.id)
             return
-        else:
-            pass
 
         try:
             forwarded_msg = await message.forward(Config.DB_CHANNEL)
@@ -146,5 +145,25 @@ async def handle_media(bot: Client, message: Message):
             await asyncio.sleep(sl.value)
             await bot.send_message(
                 chat_id=int(Config.LOG_CHANNEL),
-                text=f"#FloodWait:\nGot FloodWait"
+                text=f"#FloodWait:\nGot FloodWait of `{sl.value}s` from `{message.chat.id}` !!",
+                disable_web_page_preview=True,
+                reply_markup=InlineKeyboardMarkup(
+                    [
+                        [InlineKeyboardButton("Ban User", callback_data=f"ban_user_{message.chat.id}")]
+                    ]
+                )
+            )
+        except Exception as err:
+            await bot.send_message(
+                chat_id=int(Config.LOG_CHANNEL),
+                text=f"#ERROR_TRACEBACK:\nGot Error from `{message.chat.id}` !!\n\n**Traceback:** `{err}`",
+                disable_web_page_preview=True,
+                reply_markup=InlineKeyboardMarkup(
+                    [
+                        [InlineKeyboardButton("Ban User", callback_data=f"ban_user_{message.chat.id}")]
+                    ]
+                )
+            )
 
+if __name__ == "__main__":
+    Bot.run()
