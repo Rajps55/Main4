@@ -1,3 +1,5 @@
+import os
+
 class Config(object):
     API_ID = int(os.environ.get("API_ID", "27002519"))
     API_HASH = os.environ.get("API_HASH", "1033ee721101d78366b4ac46aadf3930")
@@ -45,5 +47,3 @@ How to Use Bot & it's Benefits??
 
 ⚠️ Benefits: If you have a TeleGram Movie Channel or Any Copyright Channel, Then Its Useful for Daily Usage, You can Send Me Your File & I will Send Permanent Link to You & Channel will be Safe from **CopyRight Infringement** Issue. I support Channel Also You Can Check **About Bot**.
 """
-    # Add this line to define BOT_VERSION
-    BOT_VERSION = os.environ.get("BOT_VERSION", "1.0.0")  # Set a default version if environment variable is not set
