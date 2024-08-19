@@ -74,6 +74,7 @@ async def start(bot: Client, cmd: Message):
                 file_id = int(b64_to_str(usr_cmd).split("_")[-1])
             except (Error, UnicodeDecodeError):
                 file_id = int(usr_cmd.split("_")[-1])
+                
             GetMessage = await bot.get_messages(chat_id=Config.DB_CHANNEL, message_ids=file_id)
             message_ids = []
             if GetMessage.text:
@@ -85,6 +86,7 @@ async def start(bot: Client, cmd: Message):
                 )
             else:
                 message_ids.append(int(GetMessage.id))
+                
             for msg_id in message_ids:
                 if await is_premium_member(cmd.from_user.id):
                     await send_media_and_reply(bot, user_id=cmd.from_user.id, file_id=msg_id)
