@@ -65,6 +65,14 @@ async def start(bot: Client, cmd: Message):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     await cmd.reply_text(f"Hi, I am back! Current date and time: {current_time}")
 
+    # Log channel me time display on restart
+    if Config.LOG_CHANNEL:
+        await bot.send_message(
+            chat_id=int(Config.LOG_CHANNEL),
+            text=f"Bot restarted at: {current_time}\nVersion: {Config.BOT_VERSION}",
+            disable_web_page_preview=True
+        )
+
     usr_cmd = cmd.text.split("_", 1)[-1]
     if usr_cmd == "/start":
         await add_user_to_database(bot, cmd)
