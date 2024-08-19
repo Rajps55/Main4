@@ -146,4 +146,5 @@ async def handle_media(bot: Client, message: Message):
             await asyncio.sleep(sl.value)
             await bot.send_message(
                 chat_id=int(Config.LOG_CHANNEL),
-                text=f"#FloodWait:\nGot FloodWait
+                text=f"#FloodWait:\nGot FloodWait"
+
