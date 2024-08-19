@@ -1,12 +1,11 @@
-from flask import Flask
 from pyrogram import Client, enums, filters
 from pyrogram.errors import UserNotParticipant, FloodWait
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 from datetime import datetime
 from binascii import Error
 import asyncio
+import logging
 import traceback
-import time
 
 from configs import Config
 from handlers.database import db
@@ -17,6 +16,9 @@ from handlers.check_user_status import handle_user_status
 from handlers.force_sub_handler import handle_force_sub
 from handlers.broadcast_handlers import main_broadcast_handler
 from handlers.save_media import save_media_in_channel, save_batch_media_in_channel
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 MediaList = {}
 
@@ -33,7 +35,7 @@ async def is_premium_member(user_id):
         premium_users = await db.get_premium_users()
         return user_id in premium_users
     except Exception as e:
-        print(f"Error checking premium status: {e}")
+        logging.error(f"Error checking premium status: {e}")
         return False
 
 async def handle_flood_wait(func, *args, **kwargs):
@@ -41,10 +43,10 @@ async def handle_flood_wait(func, *args, **kwargs):
         try:
             return await func(*args, **kwargs)
         except FloodWait as fw:
-            print(f"FloodWait: Waiting for {fw.value} seconds")
+            logging.warning(f"FloodWait: Waiting for {fw.value} seconds")
             await asyncio.sleep(fw.value)
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            logging.error(f"Unexpected error: {e}")
             break
 
 @Bot.on_message(filters.private)
