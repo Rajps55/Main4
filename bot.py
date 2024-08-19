@@ -1,20 +1,18 @@
-# (c) @TeleRoidGroup || @PredatorHackerzZ
-
-import os
-import asyncio
-import traceback
-from datetime import datetime  # Added for date and time functionality
-from binascii import Error
+from flask import Flask
 from pyrogram import Client, enums, filters
-from pyrogram.errors import UserNotParticipant, FloodWait, QueryIdInvalid
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message
+from pyrogram.errors import UserNotParticipant, FloodWait
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from datetime import datetime
+from binascii import Error
+import traceback
+
 from configs import Config
 from handlers.database import db
 from handlers.add_user_to_db import add_user_to_database
 from handlers.send_file import send_media_and_reply
 from handlers.helpers import b64_to_str, str_to_b64
 from handlers.check_user_status import handle_user_status
-from handlers.force_sub_handler import handle_force_sub, get_invite_link
+from handlers.force_sub_handler import handle_force_sub
 from handlers.broadcast_handlers import main_broadcast_handler
 from handlers.save_media import save_media_in_channel, save_batch_media_in_channel
 
@@ -28,13 +26,16 @@ Bot = Client(
     api_hash=Config.API_HASH
 )
 
-# Added a function to check if the user is a premium member
 async def is_premium_member(user_id):
-    premium_users = await db.get_premium_users()  # Assuming a function to get premium users from the database
-    return user_id in premium_users
+    try:
+        premium_users = await db.get_premium_users()
+        return user_id in premium_users
+    except Exception as e:
+        print(f"Error checking premium status: {e}")
+        return False
 
 @Bot.on_message(filters.private)
-async def _(bot: Client, cmd: Message):
+async def handle_user(bot: Client, cmd: Message):
     await handle_user_status(bot, cmd)
 
 @Bot.on_message(filters.command("start") & filters.private)
@@ -43,12 +44,11 @@ async def start(bot: Client, cmd: Message):
         await cmd.reply_text("Sorry, You are banned.")
         return
 
-    if Config.UPDATES_CHANNEL is not None:
+    if Config.UPDATES_CHANNEL:
         back = await handle_force_sub(bot, cmd)
         if back == 400:
             return
 
-    # Send startup message with date and time
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     await cmd.reply_text(f"Hi, I am back! Current date and time: {current_time}")
 
@@ -77,28 +77,27 @@ async def start(bot: Client, cmd: Message):
             message_ids = []
             if GetMessage.text:
                 message_ids = GetMessage.text.split(" ")
-                _response_msg = await cmd.reply_text(
+                await cmd.reply_text(
                     text=f"**Total Files:** `{len(message_ids)}`",
                     quote=True,
                     disable_web_page_preview=True
                 )
             else:
                 message_ids.append(int(GetMessage.id))
-            for i in range(len(message_ids)):
+            for msg_id in message_ids:
                 if await is_premium_member(cmd.from_user.id):
-                    await send_media_and_reply(bot, user_id=cmd.from_user.id, file_id=int(message_ids[i]))
+                    await send_media_and_reply(bot, user_id=cmd.from_user.id, file_id=msg_id)
                 else:
                     await cmd.reply_text("This is a premium feature. Please subscribe to use this feature.")
         except Exception as err:
             await cmd.reply_text(f"Something went wrong!\n\n**Error:** `{err}`")
 
-
 @Bot.on_message((filters.document | filters.video | filters.audio | filters.photo) & ~filters.chat(Config.DB_CHANNEL))
-async def main(bot: Client, message: Message):
+async def handle_media(bot: Client, message: Message):
     if message.chat.type == enums.ChatType.PRIVATE:
         await add_user_to_database(bot, message)
 
-        if Config.UPDATES_CHANNEL is not None:
+        if Config.UPDATES_CHANNEL:
             back = await handle_force_sub(bot, message)
             if back == 400:
                 return
@@ -108,7 +107,7 @@ async def main(bot: Client, message: Message):
                                      disable_web_page_preview=True)
             return
 
-        if Config.OTHER_USERS_CAN_SAVE_FILE is False:
+        if not Config.OTHER_USERS_CAN_SAVE_FILE:
             return
 
         await message.reply_text(
@@ -147,64 +146,4 @@ async def main(bot: Client, message: Message):
             await asyncio.sleep(sl.value)
             await bot.send_message(
                 chat_id=int(Config.LOG_CHANNEL),
-                text=f"#FloodWait:\nGot FloodWait of `{str(sl.value)}s` from `{str(message.chat.id)}` !!",
-                disable_web_page_preview=True
-            )
-        except Exception as err:
-            await bot.leave_chat(message.chat.id)
-            await bot.send_message(
-                chat_id=int(Config.LOG_CHANNEL),
-                text=f"#ERROR_TRACEBACK:\nGot Error from `{str(message.chat.id)}` !!\n\n**Traceback:** `{err}`",
-                disable_web_page_preview=True
-            )
-
-
-@Bot.on_message(filters.private & filters.command("broadcast") & filters.user(Config.BOT_OWNER) & filters.reply)
-async def broadcast_handler_open(_, m: Message):
-    await main_broadcast_handler(m, db)
-
-@Bot.on_message(filters.private & filters.command("status") & filters.user(Config.BOT_OWNER))
-async def sts(_, m: Message):
-    total_users = await db.total_users_count()
-    await m.reply_text(
-        text=f"**Total Users in DB:** `{total_users}`",
-        quote=True
-    )
-
-@Bot.on_message(filters.private & filters.command("ban_user") & filters.user(Config.BOT_OWNER))
-async def ban(c: Client, m: Message):
-    if len(m.command) == 1:
-        await m.reply_text(
-            f"Use this command to ban any user from the bot.\n\n"
-            f"Usage:\n\n"
-            f"`/ban_user user_id ban_duration ban_reason`\n\n"
-            f"Eg: `/ban_user 1234567 28 You misused me.`\n"
-            f"This will ban user with id `1234567` for `28` days for the reason `You misused me`.",
-            quote=True
-        )
-        return
-
-    try:
-        user_id = int(m.command[1])
-        ban_duration = int(m.command[2])
-        ban_reason = ' '.join(m.command[3:])
-        ban_log_text = f"Banning user {user_id} for {ban_duration} days for the reason {ban_reason}."
-        try:
-            await c.send_message(
-                user_id,
-                f"You are banned to use this bot for **{ban_duration}** day(s) for the reason __{ban_reason}__ \n\n"
-                f"**Message from the admin**"
-            )
-            ban_log_text += '\n\nUser notified successfully!'
-        except:
-            traceback.print_exc()
-            ban_log_text += f"\n\nUser notification failed! \n\n`{traceback.format_exc()}`"
-
-        await db.ban_user(user_id, ban_duration, ban_reason)
-        print(ban_log_text)
-        await m.reply_text(
-            ban_log_text,
-            quote=True
-        )
-    except:
-        traceback
+                text=f"#FloodWait:\nGot FloodWait
