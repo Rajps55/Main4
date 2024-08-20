@@ -1,20 +1,21 @@
-from pyrogram import Client, enums, filters
-from pyrogram.errors import FloodWait, UserNotParticipant
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
-from datetime import datetime
-import asyncio
-import logging
+# (c) @TeleRoidGroup || @PredatorHackerzZ
 
+import os
+import asyncio
+import traceback
+from binascii import Error
+from pyrogram import Client, enums, filters
+from pyrogram.errors import UserNotParticipant, FloodWait, QueryIdInvalid
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message
 from configs import Config
 from handlers.database import db
 from handlers.add_user_to_db import add_user_to_database
 from handlers.send_file import send_media_and_reply
 from handlers.helpers import b64_to_str, str_to_b64
 from handlers.check_user_status import handle_user_status
-from handlers.force_sub_handler import handle_force_sub
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+from handlers.force_sub_handler import handle_force_sub, get_invite_link
+from handlers.broadcast_handlers import main_broadcast_handler
+from handlers.save_media import save_media_in_channel, save_batch_media_in_channel
 
 MediaList = {}
 
@@ -26,27 +27,8 @@ Bot = Client(
     api_hash=Config.API_HASH
 )
 
-async def is_premium_member(user_id):
-    try:
-        premium_users = await db.get_premium_users()
-        return user_id in premium_users
-    except Exception as e:
-        logging.error(f"Error checking premium status: {e}")
-        return False
-
-async def handle_flood_wait(func, *args, **kwargs):
-    while True:
-        try:
-            return await func(*args, **kwargs)
-        except FloodWait as fw:
-            logging.warning(f"FloodWait: Waiting for {fw.value} seconds")
-            await asyncio.sleep(fw.value)
-        except Exception as e:
-            logging.error(f"Unexpected error: {e}")
-            break
-
 @Bot.on_message(filters.private)
-async def handle_user(bot: Client, cmd: Message):
+async def _(bot: Client, cmd: Message):
     await handle_user_status(bot, cmd)
 
 @Bot.on_message(filters.command("start") & filters.private)
@@ -54,23 +36,11 @@ async def start(bot: Client, cmd: Message):
     if cmd.from_user.id in Config.BANNED_USERS:
         await cmd.reply_text("Sorry, You are banned.")
         return
-
-    if Config.UPDATES_CHANNEL:
+    if Config.UPDATES_CHANNEL is not None:
         back = await handle_force_sub(bot, cmd)
         if back == 400:
             return
-
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    await cmd.reply_text(f"Hi, I am back! Current date and time: {current_time}")
-
-    # Log channel me time display on restart
-    if Config.LOG_CHANNEL:
-        await bot.send_message(
-            chat_id=int(Config.LOG_CHANNEL),
-            text=f"Bot restarted at: {current_time}\nVersion: {Config.BOT_VERSION}",
-            disable_web_page_preview=True
-        )
-
+    
     usr_cmd = cmd.text.split("_", 1)[-1]
     if usr_cmd == "/start":
         await add_user_to_database(bot, cmd)
@@ -80,8 +50,14 @@ async def start(bot: Client, cmd: Message):
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilixmo_ch"),
-                        InlineKeyboardButton("Search Movie", url="https://t.me/n_flixmovie")
+                        InlineKeyboardButton("Updates Channel", url="https://t.me/VJ_Botz")
+                    ],
+                    [
+                        InlineKeyboardButton("Netflix Movie", url="YOUR_NETFLIX_MOVIE_URL")  # Replace with your URL
+                    ],
+                    [
+                        InlineKeyboardButton("Channel 1", url="https://t.me/Channel1_Link"),  # Replace with Channel 1 URL
+                        InlineKeyboardButton("Channel 2", url="https://t.me/Channel2_Link")   # Replace with Channel 2 URL
                     ]
                 ]
             )
@@ -92,45 +68,36 @@ async def start(bot: Client, cmd: Message):
                 file_id = int(b64_to_str(usr_cmd).split("_")[-1])
             except (Error, UnicodeDecodeError):
                 file_id = int(usr_cmd.split("_")[-1])
-                
-            GetMessage = await handle_flood_wait(bot.get_messages, chat_id=Config.DB_CHANNEL, message_ids=file_id)
+            GetMessage = await bot.get_messages(chat_id=Config.DB_CHANNEL, message_ids=file_id)
             message_ids = []
             if GetMessage.text:
                 message_ids = GetMessage.text.split(" ")
-                await cmd.reply_text(
+                _response_msg = await cmd.reply_text(
                     text=f"**Total Files:** `{len(message_ids)}`",
                     quote=True,
                     disable_web_page_preview=True
                 )
             else:
                 message_ids.append(int(GetMessage.id))
-                
-            for msg_id in message_ids:
-                if await is_premium_member(cmd.from_user.id):
-                    await send_media_and_reply(bot, user_id=cmd.from_user.id, file_id=msg_id)
-                else:
-                    await cmd.reply_text("This is a premium feature. Please subscribe to use this feature.")
+            for i in range(len(message_ids)):
+                await send_media_and_reply(bot, user_id=cmd.from_user.id, file_id=int(message_ids[i]))
         except Exception as err:
             await cmd.reply_text(f"Something went wrong!\n\n**Error:** `{err}`")
 
 @Bot.on_message((filters.document | filters.video | filters.audio | filters.photo) & ~filters.chat(Config.DB_CHANNEL))
-async def handle_media(bot: Client, message: Message):
+async def main(bot: Client, message: Message):
     if message.chat.type == enums.ChatType.PRIVATE:
         await add_user_to_database(bot, message)
-
-        if Config.UPDATES_CHANNEL:
+        if Config.UPDATES_CHANNEL is not None:
             back = await handle_force_sub(bot, message)
             if back == 400:
                 return
-
         if message.from_user.id in Config.BANNED_USERS:
-            await message.reply_text("Sorry, You are banned!\n\nContact [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/Netfilix_movie_shaport)",
+            await message.reply_text("Sorry, You are banned!\n\nContact [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/VJ_Bot_Disscussion)",
                                      disable_web_page_preview=True)
             return
-
-        if not Config.OTHER_USERS_CAN_SAVE_FILE:
+        if Config.OTHER_USERS_CAN_SAVE_FILE is False:
             return
-
         await message.reply_text(
             text="**Choose an option from below:**",
             reply_markup=InlineKeyboardMarkup([
@@ -146,14 +113,16 @@ async def handle_media(bot: Client, message: Message):
         elif int(message.chat.id) in Config.BANNED_CHAT_IDS:
             await bot.leave_chat(message.chat.id)
             return
+        else:
+            pass
 
         try:
-            forwarded_msg = await handle_flood_wait(message.forward, Config.DB_CHANNEL)
+            forwarded_msg = await message.forward(Config.DB_CHANNEL)
             file_er_id = str(forwarded_msg.id)
             share_link = f"https://t.me/{Config.BOT_USERNAME}?start=VJBotz_{str_to_b64(file_er_id)}"
-            CH_edit = await handle_flood_wait(bot.edit_message_reply_markup, message.chat.id, message.id,
-                                              reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(
-                                                  "Get Sharable Link", url=share_link)]]))
+            CH_edit = await bot.edit_message_reply_markup(message.chat.id, message.id,
+                                                          reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(
+                                                              "Get Sharable Link", url=share_link)]]))
             if message.chat.username:
                 await forwarded_msg.reply_text(
                     f"#CHANNEL_BUTTON:\n\n[{message.chat.title}](https://t.me/{message.chat.username}/{CH_edit.id}) Channel's Broadcasted File's Button Added!")
@@ -165,25 +134,125 @@ async def handle_media(bot: Client, message: Message):
             await asyncio.sleep(sl.value)
             await bot.send_message(
                 chat_id=int(Config.LOG_CHANNEL),
-                text=f"#FloodWait:\nGot FloodWait of `{sl.value}s` from `{message.chat.id}` !!",
-                disable_web_page_preview=True,
-                reply_markup=InlineKeyboardMarkup(
-                    [
-                        [InlineKeyboardButton("Ban User", callback_data=f"ban_user_{message.chat.id}")]
-                    ]
-                )
+                text=f"#FloodWait:\nGot FloodWait of `{str(sl.value)}s` from `{str(message.chat.id)}` !!",
+                disable_web_page_preview=True
             )
         except Exception as err:
+            await bot.leave_chat(message.chat.id)
             await bot.send_message(
                 chat_id=int(Config.LOG_CHANNEL),
-                text=f"#ERROR_TRACEBACK:\nGot Error from `{message.chat.id}` !!\n\n**Traceback:** `{err}`",
-                disable_web_page_preview=True,
-                reply_markup=InlineKeyboardMarkup(
-                    [
-                        [InlineKeyboardButton("Ban User", callback_data=f"ban_user_{message.chat.id}")]
-                    ]
-                )
+                text=f"#ERROR_TRACEBACK:\nGot Error from `{str(message.chat.id)}` !!\n\n**Traceback:** `{err}`",
+                disable_web_page_preview=True
             )
+
+@Bot.on_message(filters.private & filters.command("broadcast") & filters.user(Config.BOT_OWNER) & filters.reply)
+async def broadcast_handler_open(_, m: Message):
+    await main_broadcast_handler(m, db)
+
+@Bot.on_message(filters.private & filters.command("status") & filters.user(Config.BOT_OWNER))
+async def sts(_, m: Message):
+    total_users = await db.total_users_count()
+    await m.reply_text(
+        text=f"**Total Users in DB:** `{total_users}`",
+        quote=True
+    )
+
+@Bot.on_message(filters.private & filters.command("ban_user") & filters.user(Config.BOT_OWNER))
+async def ban(c: Client, m: Message):
+    if len(m.command) == 1:
+        await m.reply_text(
+            f"Use this command to ban any user from the bot.\n\n"
+            f"Usage:\n\n"
+            f"`/ban_user user_id ban_duration ban_reason`\n\n"
+            f"Eg: `/ban_user 1234567 28 You misused me.`\n"
+            f"This will ban user with id `1234567` for `28` days for the reason `You misused me`.",
+            quote=True
+        )
+        return
+
+    try:
+        user_id = int(m.command[1])
+        ban_duration = int(m.command[2])
+        ban_reason = ' '.join(m.command[3:])
+        ban_log_text = f"Banning user {user_id} for {ban_duration} days for the reason {ban_reason}."
+        try:
+            await c.send_message(
+                user_id,
+                f"You are banned to use this bot for **{ban_duration}** day(s) for the reason __{ban_reason}__ \n\n"
+                f"**Message from the admin**"
+            )
+            ban_log_text += '\n\nUser notified successfully!'
+        except:
+            traceback.print_exc()
+            ban_log_text += f"\n\nUser notification failed! \n\n`{traceback.format_exc()}`"
+
+        await db.ban_user(user_id, ban_duration, ban_reason)
+        print(ban_log_text)
+        await m.reply_text(
+            ban_log_text,
+            quote=True
+        )
+    except:
+        traceback.print_exc()
+        await m.reply_text(
+            f"Error occurred! Traceback given below\n\n`{traceback.format_exc()}`",
+            quote=True
+        )
+
+@Bot.on_message(filters.private & filters.command("unban_user") & filters.user(Config.BOT_OWNER))
+async def unban(c: Client, m: Message):
+    if len(m.command) == 1:
+        await m.reply_text(
+            f"Use this command to unban any user from the bot.\n\n"
+            f"Usage:\n\n"
+            f"`/unban_user user_id`\n\n"
+            f"Eg: `/unban_user 1234567`\n"
+            f"This will unban user with id `1234567`.",
+            quote=True
+        )
+        return
+
+    try:
+        user_id = int(m.command[1])
+        await db.unban_user(user_id)
+        await m.reply_text(
+            f"User with id `{user_id}` unbanned successfully!",
+            quote=True
+        )
+    except:
+        traceback.print_exc()
+        await m.reply_text(
+            f"Error occurred! Traceback given below\n\n`{traceback.format_exc()}`",
+            quote=True
+        )
+
+@Bot.on_callback_query()
+async def cb_query_handler(c: Client, callback: CallbackQuery):
+    data = callback.data
+    if data == "aboutbot":
+        await callback.message.edit_text(
+            text="**About Bot:**\n\n"
+                 "This is a versatile bot that can handle media, provide sharable links, and more. For additional information, visit the support group.",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [InlineKeyboardButton("Support Group", url="https://t.me/VJ_Bot_Disscussion")],
+                    [InlineKeyboardButton("Close 🚪", callback_data="closeMessage")]
+                ]
+            )
+        )
+    elif data == "aboutdevs":
+        await callback.message.edit_text(
+            text="**About Developers:**\n\n"
+                 "This bot is developed and maintained by skilled developers to provide an excellent user experience.",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [InlineKeyboardButton("Support Group", url="https://t.me/VJ_Bot_Disscussion")],
+                    [InlineKeyboardButton("Close 🚪", callback_data="closeMessage")]
+                ]
+            )
+        )
+    elif data == "closeMessage":
+        await callback.message.delete()
 
 if __name__ == "__main__":
     Bot.run()
