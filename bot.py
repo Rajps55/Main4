@@ -1,7 +1,7 @@
 import os
+import logging
 import asyncio
 import traceback
-import logging
 from binascii import Error
 from pyrogram import Client, enums, filters
 from pyrogram.errors import UserNotParticipant, FloodWait, QueryIdInvalid
@@ -16,6 +16,10 @@ from handlers.force_sub_handler import handle_force_sub, get_invite_link
 from handlers.broadcast_handlers import main_broadcast_handler
 from handlers.save_media import save_media_in_channel, save_batch_media_in_channel
 
+# Ensure the logs directory exists
+if not os.path.exists('logs'):
+    os.makedirs('logs')
+
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
@@ -27,7 +31,6 @@ logging.basicConfig(
 )
 
 MediaList = {}
-GeneratedLinks = {}
 
 Bot = Client(
     name=Config.BOT_USERNAME,
@@ -63,10 +66,10 @@ async def start(bot: Client, cmd: Message):
                         InlineKeyboardButton("Updates Channel", url="https://t.me/netfilixmo_ch")
                     ],
                     [
-                        InlineKeyboardButton("Netflix_Search", url="https://t.me/n_flixmovie")  # Replace with your URL
+                        InlineKeyboardButton("Netflix_search", url="https://t.me/n_flixmovie")  # Replace with your URL
                     ],
                     [
-                        InlineKeyboardButton("Update Channel_2", url="https://t.me/netfilix_movie"),  # Replace with Channel 1 URL
+                        InlineKeyboardButton("Channel 1", url="https://t.me/netfilix_movie")  # Replace with Channel 1 URL
                         
                     ]
                 ]
@@ -92,7 +95,6 @@ async def start(bot: Client, cmd: Message):
             for i in range(len(message_ids)):
                 await send_media_and_reply(bot, user_id=cmd.from_user.id, file_id=int(message_ids[i]))
         except Exception as err:
-            logging.error(f"Error occurred while processing start command: {err}")
             await cmd.reply_text(f"Something went wrong!\n\n**Error:** `{err}`")
 
 @Bot.on_message((filters.document | filters.video | filters.audio | filters.photo) & ~filters.chat(Config.DB_CHANNEL))
@@ -131,11 +133,9 @@ async def main(bot: Client, message: Message):
             forwarded_msg = await message.forward(Config.DB_CHANNEL)
             file_er_id = str(forwarded_msg.id)
             share_link = f"https://t.me/{Config.BOT_USERNAME}?start=VJBotz_{str_to_b64(file_er_id)}"
-            emoji_text = "📂 Saved File"  # Add emojis and text
             CH_edit = await bot.edit_message_reply_markup(message.chat.id, message.id,
                                                           reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(
-                                                              f"{emoji_text} - Get Sharable Link", url=share_link)]]))
-            GeneratedLinks[file_er_id] = share_link  # Save generated link
+                                                              "Get Sharable Link", url=share_link)]]))
             if message.chat.username:
                 await forwarded_msg.reply_text(
                     f"#CHANNEL_BUTTON:\n\n[{message.chat.title}](https://t.me/{message.chat.username}/{CH_edit.id}) Channel's Broadcasted File's Button Added!")
@@ -144,7 +144,6 @@ async def main(bot: Client, message: Message):
                 await forwarded_msg.reply_text(
                     f"#CHANNEL_BUTTON:\n\n[{message.chat.title}](https://t.me/c/{private_ch}/{CH_edit.id}) Channel's Broadcasted File's Button Added!")
         except FloodWait as sl:
-            logging.warning(f"FloodWait: Got FloodWait of `{sl.value}` seconds from `{message.chat.id}`")
             await asyncio.sleep(sl.value)
             await bot.send_message(
                 chat_id=int(Config.LOG_CHANNEL),
@@ -152,7 +151,6 @@ async def main(bot: Client, message: Message):
                 disable_web_page_preview=True
             )
         except Exception as err:
-            logging.error(f"Error occurred while handling message from channel: {err}")
             await bot.leave_chat(message.chat.id)
             await bot.send_message(
                 chat_id=int(Config.LOG_CHANNEL),
@@ -193,11 +191,13 @@ async def ban(c: Client, m: Message):
         try:
             await c.send_message(
                 user_id,
-                f"You are banned to use this bot for **{ban_duration}** days for the reason: `{ban_reason}`.",
-                parse_mode="markdown"
+                f"You are banned to use this bot for **{ban_duration}** day(s) for the reason __{ban_reason}__ \n\n"
+                f"**Message from the admin**"
             )
-        except Exception as e:
-            logging.warning(f"Could not notify the user: {e}")
+            ban_log_text += '\n\nUser notified successfully!'
+        except:
+            traceback.print_exc()
+            ban_log_text += f"\n\nUser notification failed! \n\n`{traceback.format_exc()}`"
 
         await db.ban_user(user_id, ban_duration, ban_reason)
         logging.info(ban_log_text)
@@ -206,7 +206,7 @@ async def ban(c: Client, m: Message):
             quote=True
         )
     except:
-        logging.error(f"Error occurred while banning user: {traceback.format_exc()}")
+        traceback.print_exc()
         await m.reply_text(
             f"Error occurred! Traceback given below\n\n`{traceback.format_exc()}`",
             quote=True
@@ -228,66 +228,71 @@ async def unban(c: Client, m: Message):
     try:
         user_id = int(m.command[1])
         await db.unban_user(user_id)
+        await c.send_message(
+            user_id,
+            f"You are unbanned to use this bot.\n\n**Message from the admin**"
+        )
         await m.reply_text(
             f"User with id `{user_id}` unbanned successfully!",
             quote=True
         )
     except:
-        logging.error(f"Error occurred while unbanning user: {traceback.format_exc()}")
+        traceback.print_exc()
         await m.reply_text(
             f"Error occurred! Traceback given below\n\n`{traceback.format_exc()}`",
             quote=True
         )
 
-@Bot.on_callback_query()
-async def cb_query_handler(c: Client, callback: CallbackQuery):
-    data = callback.data
-    if data == "aboutbot":
-        await callback.message.edit_text(
-            text="**About Bot:**\n\n"
-                 "This is a versatile bot that can handle media, provide sharable links, and more. For additional information, visit the support group.",
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport")],
-                    [InlineKeyboardButton("Close 🚪", callback_data="closeMessage")]
-                ]
-            )
-        )
-    elif data == "aboutdevs":
-        await callback.message.edit_text(
-            text="**About Developers:**\n\n"
-                 "This bot is developed and maintained by skilled developers to provide an excellent user experience.",
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport")],
-                    [InlineKeyboardButton("Close 🚪", callback_data="closeMessage")]
-                ]
-            )
-        )
-    elif data == "closeMessage":
-        await callback.message.delete()
-
-@Bot.on_message(filters.private & filters.command("getlink"))
-async def get_link_command(c: Client, m: Message):
-    user_id = m.from_user.id
-    links = [f"{file_id}: {url}" for file_id, url in GeneratedLinks.items()]
-    if not links:
-        await m.reply_text("No links generated yet.", quote=True)
-    else:
-        links_text = "\n".join(links)
+@Bot.on_message(filters.private & filters.command("delete_user") & filters.user(Config.BOT_OWNER))
+async def delete_user(_, m: Message):
+    if len(m.command) == 1:
         await m.reply_text(
-            f"Here are your generated links:\n\n{links_text}",
+            f"Use this command to delete user data from the bot.\n\n"
+            f"Usage:\n\n"
+            f"`/delete_user user_id`\n\n"
+            f"Eg: `/delete_user 1234567`\n"
+            f"This will delete user with id `1234567` from the database.",
+            quote=True
+        )
+        return
+
+    try:
+        user_id = int(m.command[1])
+        await db.delete_user(user_id)
+        await m.reply_text(
+            f"User with id `{user_id}` deleted successfully from the database!",
+            quote=True
+        )
+    except:
+        traceback.print_exc()
+        await m.reply_text(
+            f"Error occurred! Traceback given below\n\n`{traceback.format_exc()}`",
             quote=True
         )
 
-async def send_restart_log():
-    await Bot.send_message(
-        chat_id=int(Config.LOG_CHANNEL),
-        text=f"बॉट ने {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} पर रिस्टार्ट किया है।"
-    )
+@Bot.on_message(filters.private & filters.command("getlink") & filters.reply)
+async def getlink(_, m: Message):
+    try:
+        # Assuming you need to handle the getlink command
+        if m.reply_to_message:
+            file_id = m.reply_to_message.id
+            share_link = f"https://t.me/{Config.BOT_USERNAME}?start=VJBotz_{str_to_b64(str(file_id))}"
+            await m.reply_text(
+                text=f"**Your sharable link:** {share_link}",
+                quote=True
+            )
+        else:
+            await m.reply_text(
+                text="Please reply to a message to get the sharable link.",
+                quote=True
+            )
+    except Exception as e:
+        await m.reply_text(
+            text=f"An error occurred: {e}",
+            quote=True
+        )
 
 if __name__ == "__main__":
     logging.info("Starting bot...")
     Bot.run()
     logging.info("Bot stopped")
-    asyncio.run(send_restart_log())
