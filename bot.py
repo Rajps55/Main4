@@ -50,14 +50,14 @@ async def start(bot: Client, cmd: Message):
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("Updates Channel", url="https://t.me/VJ_Botz")
+                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilixmo_ch")
                     ],
                     [
-                        InlineKeyboardButton("Netflix Movie", url="YOUR_NETFLIX_MOVIE_URL")  # Replace with your URL
+                        InlineKeyboardButton("Netflix_search", url="https://t.me/n_flixmovie")  # Replace with your URL
                     ],
                     [
-                        InlineKeyboardButton("Channel 1", url="https://t.me/Channel1_Link"),  # Replace with Channel 1 URL
-                        InlineKeyboardButton("Channel 2", url="https://t.me/Channel2_Link")   # Replace with Channel 2 URL
+                        InlineKeyboardButton("Channel 1", url="https://t.me/netfilix_movie"),  # Replace with Channel 1 URL
+                        
                     ]
                 ]
             )
@@ -93,7 +93,7 @@ async def main(bot: Client, message: Message):
             if back == 400:
                 return
         if message.from_user.id in Config.BANNED_USERS:
-            await message.reply_text("Sorry, You are banned!\n\nContact [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/VJ_Bot_Disscussion)",
+            await message.reply_text("Sorry, You are banned!\n\nContact [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/Netfilix_movie_shaport)",
                                      disable_web_page_preview=True)
             return
         if Config.OTHER_USERS_CAN_SAVE_FILE is False:
@@ -235,7 +235,7 @@ async def cb_query_handler(c: Client, callback: CallbackQuery):
                  "This is a versatile bot that can handle media, provide sharable links, and more. For additional information, visit the support group.",
             reply_markup=InlineKeyboardMarkup(
                 [
-                    [InlineKeyboardButton("Support Group", url="https://t.me/VJ_Bot_Disscussion")],
+                    [InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport")],
                     [InlineKeyboardButton("Close 🚪", callback_data="closeMessage")]
                 ]
             )
@@ -246,7 +246,7 @@ async def cb_query_handler(c: Client, callback: CallbackQuery):
                  "This bot is developed and maintained by skilled developers to provide an excellent user experience.",
             reply_markup=InlineKeyboardMarkup(
                 [
-                    [InlineKeyboardButton("Support Group", url="https://t.me/VJ_Bot_Disscussion")],
+                    [InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport")],
                     [InlineKeyboardButton("Close 🚪", callback_data="closeMessage")]
                 ]
             )
