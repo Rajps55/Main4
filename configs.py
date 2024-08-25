@@ -3,7 +3,7 @@ import os
 class Config(object):
     API_ID = int(os.environ.get("API_ID", "27002519"))
     API_HASH = os.environ.get("API_HASH", "1033ee721101d78366b4ac46aadf3930")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7389324956:AAHrZuudVmEg_BHH8MWGzcGDA0p0vy7v7T0")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7389324956:AAEqLRq_y4Auia1s-l5e-O-8GRkw48yrTlM")
     BOT_USERNAME = os.environ.get("BOT_USERNAME", "Netflix_file_storebot")
     DB_CHANNEL = int(os.environ.get("DB_CHANNEL", "-1002244711970"))
     SHORTLINK_URL = os.environ.get('SHORTLINK_URL', "mypowerlinks.org")
