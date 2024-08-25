@@ -1,34 +1,66 @@
 import asyncio
-from typing import Union
+from typing import (
+    Union
+)
 from configs import Config
 from pyrogram import Client
 from pyrogram.errors import FloodWait, UserNotParticipant
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 
-async def get_invite_link(bot: Client, chat_id: Union[str, int], retries=5):
+
+async def get_invite_link(bot: Client, chat_id: Union[str, int]):
     try:
         invite_link = await bot.create_chat_invite_link(chat_id=chat_id)
         return invite_link
     except FloodWait as e:
-        if retries > 0:
-            await asyncio.sleep(e.value)
-            return await get_invite_link(bot, chat_id, retries=retries-1)
-        else:
-            print(f"Failed to get invite link after multiple retries: {e}")
+        print(f"Sleep of {e.value}s caused by FloodWait ...")
+        await asyncio.sleep(e.value)
+        return await get_invite_link(bot, chat_id)
+
 
 async def handle_force_sub(bot: Client, cmd: Message):
-    channel_chat_id = int(Config.UPDATES_CHANNEL) if Config.UPDATES_CHANNEL.startswith("-100") else Config.UPDATES_CHANNEL
-
+    if Config.UPDATES_CHANNEL and Config.UPDATES_CHANNEL.startswith("-100"):
+        channel_chat_id = int(Config.UPDATES_CHANNEL)
+    elif Config.UPDATES_CHANNEL and (not Config.UPDATES_CHANNEL.startswith("-100")):
+        channel_chat_id = Config.UPDATES_CHANNEL
+    else:
+        return 200
     try:
-        invite_link = await get_invite_link(bot, channel_chat_id)
-        keyboard = InlineKeyboardMarkup([
-            [InlineKeyboardButton("Join Channel", url=invite_link.invite_link)]
-        ])
-        await cmd.reply("Please join the channel to continue:", reply_markup=keyboard)
+        user = await bot.get_chat_member(chat_id=channel_chat_id, user_id=cmd.from_user.id)
+        if user.status == "kicked":
+            await bot.send_message(
+                chat_id=cmd.from_user.id,
+                text="Sorry Sir, You are Banned to use me. Contact my [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/VJ_Bot_Disscussion).",
+                disable_web_page_preview=True
+            )
+            return 400
     except UserNotParticipant:
-        await cmd.reply("You are not a participant of the channel. Please join the channel to continue.")
-    except FloodWait as e:
-        await asyncio.sleep(e.value)
-        await handle_force_sub(bot, cmd)
-    except Exception as e:
-        await cmd.reply(f"An error occurred: {str(e)}")
+        try:
+            invite_link = await get_invite_link(bot, chat_id=channel_chat_id)
+        except Exception as err:
+            print(f"Unable to do Force Subscribe to {Config.UPDATES_CHANNEL}\n\nError: {err}")
+            return 200
+        await bot.send_message(
+            chat_id=cmd.from_user.id,
+            text="**Please Join My Updates Channel to use this Bot!**\n\n"
+                 "Due to Overload, Only Channel Subscribers can use this Bot!",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton("🤖 Join Updates Channel", url=invite_link.invite_link)
+                    ],
+                    [
+                        InlineKeyboardButton("🔄 Refresh 🔄", callback_data="refreshForceSub")
+                    ]
+                ]
+            )
+        )
+        return 400
+    except Exception:
+        await bot.send_message(
+            chat_id=cmd.from_user.id,
+            text="Something went Wrong. Contact my [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/VJ_Bot_Disscussion).",
+            disable_web_page_preview=True
+        )
+        return 200
+    return 200
