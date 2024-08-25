@@ -19,15 +19,14 @@ broadcast_ids = {}
 
 async def send_msg(user_id, message):
     try:
-        if Config.BROADCAST_AS_COPY:
-            await message.copy(chat_id=user_id)
-        else:
+        if Config.BROADCAST_AS_COPY is False:
             await message.forward(chat_id=user_id)
+        elif Config.BROADCAST_AS_COPY is True:
+            await message.copy(chat_id=user_id)
         return 200, None
     except FloodWait as e:
-        print(f"FloodWait encountered: waiting for {e.value} seconds")
-        await asyncio.sleep(e.value)  # Increase wait time
-        return await send_msg(user_id, message)
+        await asyncio.sleep(e.value)
+        return send_msg(user_id, message)
     except InputUserDeactivated:
         return 400, f"{user_id} : deactivated\n"
     except UserIsBlocked:
@@ -91,13 +90,13 @@ async def main_broadcast_handler(m, db):
     await out.delete()
     if failed == 0:
         await m.reply_text(
-            text=f"Broadcast completed in `{completed_in}`\n\nTotal users {total_users}.\nTotal done {done}, {success} success and {failed} failed.",
+            text=f"broadcast completed in `{completed_in}`\n\nTotal users {total_users}.\nTotal done {done}, {success} success and {failed} failed.",
             quote=True
         )
     else:
         await m.reply_document(
             document='broadcast.txt',
-            caption=f"Broadcast completed in `{completed_in}`\n\nTotal users {total_users}.\nTotal done {done}, {success} success and {failed} failed.",
+            caption=f"broadcast completed in `{completed_in}`\n\nTotal users {total_users}.\nTotal done {done}, {success} success and {failed} failed.",
             quote=True
         )
     await aiofiles.os.remove('broadcast.txt')
