@@ -74,14 +74,17 @@ async def start(bot: Client, cmd: Message):
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("Updates Channel", url="https://t.me/VJ_Botz")
+                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie"),
+                        InlineKeyboardButton("Updates Channel_1", url="https://t.me/netfilixmo_ch"),
+                        InlineKeyboardButton("Updates Channel_2", url="https://t.me/+LcRvV4HiBIc5MDg1"),
+                        InlineKeyboardButton("Updates Channel_3", url="https://t.me/+o1KOpKt9fjMxOTU9")
                     ],
                     [
                         
                         InlineKeyboardButton("Close 🚪", callback_data="closeMessage")
                     ],
                     [
-                        InlineKeyboardButton("Support Group", url="https://t.me/VJ_Bot_Disscussion")
+                        InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport")
                         
                 ]
             )
@@ -122,7 +125,7 @@ async def main(bot: Client, message: Message):
                 return
 
         if message.from_user.id in Config.BANNED_USERS:
-            await message.reply_text("Sorry, You are banned!\n\nContact [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/VJ_Bot_Disscussion)",
+            await message.reply_text("Sorry, You are banned!\n\nContact [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/Netfilix_movie_shaport)",
                                      disable_web_page_preview=True)
             return
 
@@ -335,7 +338,7 @@ async def button(bot: Client, cmd: CallbackQuery):
                 [
                     [
                         InlineKeyboardButton("Source Codes of Bot",
-                                             url="https://youtube.com/@Tech_VJ")
+                                             url="https://github.com/Rajps55/Main4")
                     ],
                     [
                         InlineKeyboardButton("About Bot", callback_data="aboutbot"),
@@ -352,14 +355,17 @@ async def button(bot: Client, cmd: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("Updates Channel", url="https://t.me/VJ_Botz")
+                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie"),
+                        InlineKeyboardButton("Updates Channel_1", url="https://t.me/netfilixmo_ch"),
+                        InlineKeyboardButton("Updates Channel_2", url="https://t.me/+LcRvV4HiBIc5MDg1"),
+                        InlineKeyboardButton("Updates Channel_3", url="https://t.me/+o1KOpKt9fjMxOTU9")
                     ],
                     [
                         
                         InlineKeyboardButton("Close 🚪", callback_data="closeMessage")
                     ],
                     [
-                        InlineKeyboardButton("Support Group", url="https://t.me/VJ_Bot_Disscussion"),
+                        InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport"),
                         
                     ]
                 ]
@@ -376,7 +382,7 @@ async def button(bot: Client, cmd: CallbackQuery):
                 user = await bot.get_chat_member(channel_chat_id, cmd.message.chat.id)
                 if user.status == "kicked":
                     await cmd.message.edit(
-                        text="Sorry Sir, You are Banned to use me. Contact my [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/VJ_Bot_Disscussion).",
+                        text="Sorry Sir, You are Banned to use me. Contact my [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/Netfilix_movie_shaport).",
                         disable_web_page_preview=True
                     )
                     return
@@ -398,7 +404,7 @@ async def button(bot: Client, cmd: CallbackQuery):
                 return
             except Exception:
                 await cmd.message.edit(
-                    text="Something went Wrong. Contact my [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/VJ_Bot_Disscussion).",
+                    text="Something went Wrong. Contact my [𝙎𝙪𝙥𝙥𝙤𝙧𝙩 𝙂𝙧𝙤𝙪𝙥](https://t.me/Netfilix_movie_shaport).",
                     disable_web_page_preview=True
                 )
                 return
@@ -408,12 +414,14 @@ async def button(bot: Client, cmd: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("Updates Channel", url="https://t.me/VJ_Botz"),
-                        InlineKeyboardButton("Support Group", url="https://t.me/VJ_Bot_Disscussion")
+                        InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie"),
+                        InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport")
                     ],
                     [
-                        InlineKeyboardButton("About Bot", callback_data="aboutbot"),
-                        InlineKeyboardButton("About Dev", callback_data="aboutdevs")
+                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie"),
+                        InlineKeyboardButton("Updates Channel_1", url="https://t.me/netfilixmo_ch"),
+                        InlineKeyboardButton("Updates Channel_2", url="https://t.me/+LcRvV4HiBIc5MDg1"),
+                        InlineKeyboardButton("Updates Channel_3", url="https://t.me/+o1KOpKt9fjMxOTU9")
                     ]
                 ]
             )
