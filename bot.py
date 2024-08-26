@@ -74,17 +74,15 @@ async def start(bot: Client, cmd: Message):
             reply_markup=InlineKeyboardMarkup(
                 
                     [
-                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie"),
-                        
-                    ],
-                    [
-                        
-                        InlineKeyboardButton("Close 🚪", callback_data="closeMessage")
-                    ],
-                    [
+                        InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie"),
                         InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport")
+                    ],
+                    [
+                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie")
                         
-                    ]))
+                    ]
+            )
+        )
         
     else:
         try:
@@ -352,15 +350,11 @@ async def button(bot: Client, cmd: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie"),
-                        
+                        InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie"),
+                        InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport")
                     ],
                     [
-                        
-                        InlineKeyboardButton("Close 🚪", callback_data="closeMessage")
-                    ],
-                    [
-                        InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport"),
+                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie")
                         
                     ]
                 ]
