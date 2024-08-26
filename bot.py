@@ -75,9 +75,7 @@ async def start(bot: Client, cmd: Message):
                 [
                     [
                         InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie"),
-                        InlineKeyboardButton("Updates Channel_1", url="https://t.me/netfilixmo_ch"),
-                        InlineKeyboardButton("Updates Channel_2", url="https://t.me/+LcRvV4HiBIc5MDg1"),
-                        InlineKeyboardButton("Updates Channel_3", url="https://t.me/+o1KOpKt9fjMxOTU9")
+                        
                     ],
                     [
                         
@@ -355,9 +353,7 @@ async def button(bot: Client, cmd: CallbackQuery):
                 [
                     [
                         InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie"),
-                        InlineKeyboardButton("Updates Channel_1", url="https://t.me/netfilixmo_ch"),
-                        InlineKeyboardButton("Updates Channel_2", url="https://t.me/+LcRvV4HiBIc5MDg1"),
-                        InlineKeyboardButton("Updates Channel_3", url="https://t.me/+o1KOpKt9fjMxOTU9")
+                        
                     ],
                     [
                         
@@ -418,9 +414,7 @@ async def button(bot: Client, cmd: CallbackQuery):
                     ],
                     [
                         InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie"),
-                        InlineKeyboardButton("Updates Channel_1", url="https://t.me/netfilixmo_ch"),
-                        InlineKeyboardButton("Updates Channel_2", url="https://t.me/+LcRvV4HiBIc5MDg1"),
-                        InlineKeyboardButton("Updates Channel_3", url="https://t.me/+o1KOpKt9fjMxOTU9")
+                        
                     ]
                 ]
             )
