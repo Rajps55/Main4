@@ -74,11 +74,11 @@ async def start(bot: Client, cmd: Message):
             reply_markup=InlineKeyboardMarkup(
                 
                     [
-                        InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie"),
-                        InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport")
+                        InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie")
+                        
                     ],
                     [
-                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie")
+                        InlineKeyboardButton("Support Group", url="https://t.me/netfilix_movie")
                         
                     ]
             )
@@ -350,11 +350,11 @@ async def button(bot: Client, cmd: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie"),
-                        InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport")
+                        InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie")
+                        
                     ],
                     [
-                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie")
+                        InlineKeyboardButton("Support Group", url="https://t.me/netfilix_movie")
                         
                     ]
                 ]
@@ -403,11 +403,11 @@ async def button(bot: Client, cmd: CallbackQuery):
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
-                        InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie"),
-                        InlineKeyboardButton("Support Group", url="https://t.me/Netfilix_movie_shaport")
+                        InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie")
+                        
                     ],
                     [
-                        InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie"),
+                        InlineKeyboardButton("Support Group", url="https://t.me/netfilix_movie")
                         
                     ]
                 ]
