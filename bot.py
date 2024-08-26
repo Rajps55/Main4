@@ -72,7 +72,7 @@ async def start(bot: Client, cmd: Message):
             Config.HOME_TEXT.format(cmd.from_user.first_name, cmd.from_user.id),
             disable_web_page_preview=True,
             reply_markup=InlineKeyboardMarkup(
-                [
+                
                     [
                         InlineKeyboardButton("Updates Channel", url="https://t.me/netfilix_movie"),
                         
