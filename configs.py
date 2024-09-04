@@ -18,7 +18,7 @@ class Config(object):
     BANNED_CHAT_IDS = list(set(int(x) for x in os.environ.get("BANNED_CHAT_IDS", "").split()))
     OTHER_USERS_CAN_SAVE_FILE = bool(os.environ.get("OTHER_USERS_CAN_SAVE_FILE", True))
     # Rename Info : If True Then Bot Rename File Else Not
-RENAME_MODE = bool(environ.get('RENAME_MODE', False)) # Set True or False
+    RENAME_MODE = bool(environ.get('RENAME_MODE', False)) # Set True or False
     # Adding BOT_VERSION
     BOT_VERSION = "1.0.0"
     
