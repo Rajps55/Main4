@@ -331,18 +331,13 @@ async def button(bot: Client, cmd: CallbackQuery):
             Config.HOME_TEXT.format(cmd.message.chat.first_name, cmd.message.chat.id),
             disable_web_page_preview=True,
             reply_markup=InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie")
-                        
-                    ],
-                    [
-                        InlineKeyboardButton("Support Group", url="https://t.me/netfilix_movie")
-                        
-                    ]
-                ]
-            )
-        )
+        [
+            [InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie")],
+            [InlineKeyboardButton("Support Group", url="https://t.me/netfilix_movie")]
+        ]
+    )
+ 
+    )   
 
     elif "refreshForceSub" in cb_data:
         if Config.UPDATES_CHANNEL:
@@ -384,18 +379,13 @@ async def button(bot: Client, cmd: CallbackQuery):
             text=Config.HOME_TEXT.format(cmd.message.chat.first_name, cmd.message.chat.id),
             disable_web_page_preview=True,
             reply_markup=InlineKeyboardMarkup(
-                [
-                    [
-                        InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie")
-                        
-                    ],
-                    [
-                        InlineKeyboardButton("Support Group", url="https://t.me/netfilix_movie")
-                        
-                    ]
-                ]
-            )
-        )
+        [
+            [InlineKeyboardButton("Search Channel", url="https://t.me/n_flixmovie")],
+            [InlineKeyboardButton("Support Group", url="https://t.me/netfilix_movie")]
+        ]
+    )
+ 
+    )   
 
     elif cb_data.startswith("ban_user_"):
         user_id = cb_data.split("_", 2)[-1]
