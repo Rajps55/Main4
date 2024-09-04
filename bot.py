@@ -47,7 +47,15 @@ Bot = Client(
     api_id=Config.API_ID,
     api_hash=Config.API_HASH
 )
-
+async def send_restart_notification(bot: Client):
+    if Config.LOG_CHANNEL is not None:
+        try:
+            await bot.send_message(
+                int(Config.LOG_CHANNEL),
+                f"🚀 The bot has been restarted and is now online!"
+            )
+        except Exception as e:
+            print(f"Failed to send restart notification: {e}")
 
 @Bot.on_message(filters.private)
 async def _(bot: Client, cmd: Message):
