@@ -3,8 +3,7 @@
 # Ask Doubt on telegram @KingVJ01
 
 from pyrogram import Client, filters, enums
-from database.users_chats_db import db
-from info import RENAME_MODE
+from configs import RENAME_MODE
 
 @Client.on_message(filters.private & filters.command(['view_thumb']))
 async def viewthumb(client, message):
