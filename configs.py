@@ -17,11 +17,13 @@ class Config(object):
     BROADCAST_AS_COPY = bool(os.environ.get("BROADCAST_AS_COPY", True))
     BANNED_CHAT_IDS = list(set(int(x) for x in os.environ.get("BANNED_CHAT_IDS", "").split()))
     OTHER_USERS_CAN_SAVE_FILE = bool(os.environ.get("OTHER_USERS_CAN_SAVE_FILE", True))
-    # Rename Info : If True Then Bot Rename File Else Not
-    RENAME_MODE = bool(environ.get('RENAME_MODE', False)) # Set True or False
+
+    # Rename Info: If True, the bot will rename files, otherwise it won't
+    RENAME_MODE = bool(os.environ.get('RENAME_MODE', False))  # Set True or False
+
     # Adding BOT_VERSION
     BOT_VERSION = "1.0.0"
-    
+
     ABOUT_BOT_TEXT = f"""
     ᴛʜɪs ɪs ᴀ ᴘᴇʀᴍᴀɴᴇɴᴛ ᴀᴘs_ғɪʟᴇsᴛᴏʀᴇ ʙᴏᴛ.
     sᴇɴᴅ ᴍᴇ ᴀɴʏ ᴍᴇᴅɪᴀ ᴏʀ ғɪʟᴇ. ɪ ᴄᴀɴ ᴡᴏʀᴋ ɪɴ ᴄʜᴀɴɴᴇʟ ᴛᴏᴏ. ᴀᴅᴅ ᴍᴇ ᴛᴏ ᴄʜᴀɴɴᴇʟ ᴡɪᴛʜ ᴇᴅɪᴛ ᴘᴇʀᴍɪssɪᴏɴ, ɪ ᴡɪʟʟ sᴀᴠᴇ ᴜᴘʟᴏᴀᴅᴇᴅ ғɪʟᴇ ɪɴ ᴄʜᴀɴɴᴇʟ ᴀɴᴅ sʜᴀʀᴇ ᴀ sʜᴀʀᴇᴀʙʟᴇ ʟɪɴᴋ.
@@ -35,6 +37,7 @@ class Config(object):
     │
     ╰──────[ 😎 ]───────────⍟
     """
+    
     ABOUT_DEV_TEXT = f"""
     🧑🏻‍💻 𝗗𝗲𝘃𝗲𝗹𝗼𝗽𝗲𝗿: [R3](https://telegram.me/Rajps33)
 
@@ -42,8 +45,9 @@ class Config(object):
 
     [Donate Me](https://t.me/Rajps33)
     """
+    
     HOME_TEXT = """
-    Hᴇʟʟᴏ, [{}](tg://user?id={})\n\nᴛʜɪs ɪs ᴀ ᴘᴇʀᴍᴀɴᴇɴᴛ  **ғɪʟᴇsᴛᴏʀᴇ ʙᴏᴛ**.
+    Hᴇʟʟᴏ, [{}](tg://user?id={})\n\nᴛʜɪs ɪs ᴀ ᴘᴇʀᴍᴀɴᴇɴᴛ **ғɪʟᴇsᴛᴏʀᴇ ʙᴏᴛ**.
     ʜᴏᴡ ᴛᴏ ᴜsᴇ ʙᴏᴛ & ɪᴛ's ʙᴇɴᴇғɪᴛs ??
 
     📢 sᴇɴᴅ ᴍᴇ ᴀɴʏ ғɪʟᴇ & ɪᴛ ᴡɪʟʟ ʙᴇ ᴜᴘʟᴏᴀᴅᴇᴅ ɪɴ ᴍʏ ᴅᴀᴛᴀʙᴀsᴇ & ʏᴏᴜ ᴡɪʟʟ ɢᴇᴛ ᴛʜᴇ ғɪʟᴇ ʟɪɴᴋ.
