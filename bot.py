@@ -3,40 +3,19 @@
 import os
 import asyncio
 import traceback
-from binascii import (
-    Error
-)
-from pyrogram import (
-    Client,
-    enums,
-    filters
-)
-from pyrogram.errors import (
-    UserNotParticipant,
-    FloodWait,
-    QueryIdInvalid
-)
-from pyrogram.types import (
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-    CallbackQuery,
-    Message
-)
+from binascii import Error
+from pyrogram import Client, enums, filters
+from pyrogram.errors import UserNotParticipant, FloodWait, QueryIdInvalid
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message
 from configs import Config
 from handlers.database import db
 from handlers.add_user_to_db import add_user_to_database
 from handlers.send_file import send_media_and_reply
 from handlers.helpers import b64_to_str, str_to_b64
 from handlers.check_user_status import handle_user_status
-from handlers.force_sub_handler import (
-    handle_force_sub,
-    get_invite_link
-)
+from handlers.force_sub_handler import handle_force_sub, get_invite_link
 from handlers.broadcast_handlers import main_broadcast_handler
-from handlers.save_media import (
-    save_media_in_channel,
-    save_batch_media_in_channel
-)
+from handlers.save_media import save_media_in_channel, save_batch_media_in_channel
 
 MediaList = {}
 
@@ -47,6 +26,7 @@ Bot = Client(
     api_id=Config.API_ID,
     api_hash=Config.API_HASH
 )
+
 async def send_restart_notification(bot: Client):
     if Config.LOG_CHANNEL is not None:
         try:
