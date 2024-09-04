@@ -441,6 +441,12 @@ async def button(bot: Client, cmd: CallbackQuery):
     try:
         await cmd.answer()
     except QueryIdInvalid: pass
+# Function to handle bot startup
+async def on_startup():
+    await send_restart_notification(Bot)
 
+if __name__ == "__main__":
+    Bot.add_handler(on_startup())
+    Bot.run()
 
 Bot.run()
