@@ -3,10 +3,11 @@
 import os
 import asyncio
 import traceback
-from binascii import Error
-from pyrogram import Client, enums, filters
+from pyrogram import Client, filters, enums
 from pyrogram.errors import UserNotParticipant, FloodWait, QueryIdInvalid
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, Message, ForceReply
+
+# Custom imports for your bot
 from configs import Config
 from handlers.database import db
 from handlers.add_user_to_db import add_user_to_database
@@ -16,6 +17,12 @@ from handlers.check_user_status import handle_user_status
 from handlers.force_sub_handler import handle_force_sub, get_invite_link
 from handlers.broadcast_handlers import main_broadcast_handler
 from handlers.save_media import save_media_in_channel, save_batch_media_in_channel
+
+# Importing your custom functions
+from caption import add_caption, delete_caption, see_caption
+from cb_data import doc, cancel, rename
+from filedetect import refunc
+from rename import rename_start
 
 MediaList = {}
 
@@ -36,6 +43,19 @@ async def send_restart_notification(bot: Client):
             )
         except Exception as e:
             print(f"Failed to send restart notification: {e}")
+
+# Initialize the bot
+app = Client("my_bot")
+
+# Register imported handlers
+app.add_handler(filters.command("set_caption")(add_caption))
+app.add_handler(filters.command("del_caption")(delete_caption))
+app.add_handler(filters.command("see_caption")(see_caption))
+app.add_handler(filters.callback_query(filters.regex('rename'))(rename))
+app.add_handler(filters.callback_query(filters.regex('upload'))(doc))
+app.add_handler(filters.callback_query(filters.regex('cancel'))(cancel))
+app.add_handler(filters.reply(refunc))
+app.add_handler(filters.command("rename")(rename_start))
 
 @Bot.on_message(filters.private)
 async def _(bot: Client, cmd: Message):
