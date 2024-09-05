@@ -19,10 +19,10 @@ from handlers.broadcast_handlers import main_broadcast_handler
 from handlers.save_media import save_media_in_channel, save_batch_media_in_channel
 
 # Importing your custom functions
-from handlers.caption import add_caption, delete_caption, see_caption
-from handlers.cb_data import doc, cancel, rename
-from handlers.filedetect import refunc
-from handlers.rename import rename_start
+from handlers.rename.caption import add_caption, delete_caption, see_caption
+from handlers.rename.cb_data import doc, cancel, rename
+from handlers.rename.filedetect import refunc
+from handlers.rename.rename import rename_start
 
 MediaList = {}
 
