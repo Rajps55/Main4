@@ -17,7 +17,7 @@ class Config(object):
     BROADCAST_AS_COPY = bool(os.environ.get("BROADCAST_AS_COPY", True))
     BANNED_CHAT_IDS = list(set(int(x) for x in os.environ.get("BANNED_CHAT_IDS", "").split()))
     OTHER_USERS_CAN_SAVE_FILE = bool(os.environ.get("OTHER_USERS_CAN_SAVE_FILE", True))
-    RENAME_MODE = bool(os.environ.get('RENAME_MODE', False))  # Ensure this line is present
+    
     BOT_VERSION = "1.0.0"
     
     ABOUT_BOT_TEXT = f"""
