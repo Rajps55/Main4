@@ -1,7 +1,7 @@
 #caption.py
 
 from pyrogram import Client, filters 
-from config import RENAME_MODE
+from configs import RENAME_MODE
 
 @Client.on_message(filters.private & filters.command('set_caption'))
 async def add_caption(client, message):
