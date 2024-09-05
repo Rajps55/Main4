@@ -18,11 +18,6 @@ from handlers.force_sub_handler import handle_force_sub, get_invite_link
 from handlers.broadcast_handlers import main_broadcast_handler
 from handlers.save_media import save_media_in_channel, save_batch_media_in_channel
 
-# Importing your custom functions
-from handlers.rename.caption import add_caption, delete_caption, see_caption
-from handlers.rename.cb_data import doc, cancel, rename
-from handlers.rename.filedetect import refunc
-from handlers.rename.rename import rename_start
 
 MediaList = {}
 
@@ -44,18 +39,6 @@ async def send_restart_notification(bot: Client):
         except Exception as e:
             print(f"Failed to send restart notification: {e}")
 
-# Initialize the bot
-app = Client("my_bot")
-
-# Register imported handlers
-app.add_handler(filters.command("set_caption")(add_caption))
-app.add_handler(filters.command("del_caption")(delete_caption))
-app.add_handler(filters.command("see_caption")(see_caption))
-app.add_handler(filters.callback_query(filters.regex('rename'))(rename))
-app.add_handler(filters.callback_query(filters.regex('upload'))(doc))
-app.add_handler(filters.callback_query(filters.regex('cancel'))(cancel))
-app.add_handler(filters.reply(refunc))
-app.add_handler(filters.command("rename")(rename_start))
 
 @Bot.on_message(filters.private)
 async def _(bot: Client, cmd: Message):
