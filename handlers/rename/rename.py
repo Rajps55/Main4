@@ -4,7 +4,7 @@ from asyncio import sleep
 from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, CallbackQuery
 from pyrogram.errors import FloodWait
-from config import RENAME_MODE
+from configs import RENAME_MODE
 import humanize
 import random
 
